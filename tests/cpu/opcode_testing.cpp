@@ -76,16 +76,6 @@ TEST( OpCodes, TestBusMemoryAccess ) {
 // Break
 TEST( OpCodes, OP_00 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/00.json", &b ) ); }
 
-// ORA
-TEST( OpCodes, OP_01 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/01.json", &b ) ); }
-TEST( OpCodes, OP_05 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/05.json", &b ) ); }
-TEST( OpCodes, OP_09 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/09.json", &b ) ); }
-TEST( OpCodes, OP_0d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/0d.json", &b ) ); }
-TEST( OpCodes, OP_11 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/11.json", &b ) ); }
-TEST( OpCodes, OP_15 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/15.json", &b ) ); }
-TEST( OpCodes, OP_19 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/19.json", &b ) ); }
-TEST( OpCodes, OP_1d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/1d.json", &b ) ); }
-
 // ADC
 TEST( OpCodes, OP_61 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/61.json", &b ) ); }
 TEST( OpCodes, OP_65 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/65.json", &b ) ); }
@@ -194,6 +184,85 @@ TEST( OpCodes, OP_ca ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/
 
 // DEY
 TEST( OpCodes, OP_88 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/88.json", &b ) ); }
+
+// EOR
+TEST( OpCodes, OP_49 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/49.json", &b ) ); }
+TEST( OpCodes, OP_45 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/45.json", &b ) ); }
+TEST( OpCodes, OP_55 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/55.json", &b ) ); }
+TEST( OpCodes, OP_4d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/4d.json", &b ) ); }
+TEST( OpCodes, OP_5d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/5d.json", &b ) ); }
+TEST( OpCodes, OP_59 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/59.json", &b ) ); }
+TEST( OpCodes, OP_41 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/41.json", &b ) ); }
+TEST( OpCodes, OP_51 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/51.json", &b ) ); }
+
+// INC
+TEST( OpCodes, OP_e6 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/e6.json", &b ) ); }
+TEST( OpCodes, OP_f6 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/f6.json", &b ) ); }
+TEST( OpCodes, OP_ee ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/ee.json", &b ) ); }
+TEST( OpCodes, OP_fe ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/fe.json", &b ) ); }
+
+// INX
+TEST( OpCodes, OP_e8 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/e8.json", &b ) ); }
+
+// INY
+TEST( OpCodes, OP_c8 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/c8.json", &b ) ); }
+
+// JMP
+TEST( OpCodes, OP_4c ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/4c.json", &b ) ); }
+TEST( OpCodes, OP_6c ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/6c.json", &b ) ); }
+
+// JSR
+TEST( OpCodes, OP_20 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/20.json", &b ) ); }
+
+// LDA
+TEST( OpCodes, OP_a9 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a9.json", &b ) ); }
+TEST( OpCodes, OP_a5 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a5.json", &b ) ); }
+TEST( OpCodes, OP_b5 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/b5.json", &b ) ); }
+TEST( OpCodes, OP_ad ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/ad.json", &b ) ); }
+TEST( OpCodes, OP_bd ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/bd.json", &b ) ); }
+TEST( OpCodes, OP_b9 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/b9.json", &b ) ); }
+TEST( OpCodes, OP_a1 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a1.json", &b ) ); }
+TEST( OpCodes, OP_b1 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/b1.json", &b ) ); }
+
+// LDX
+TEST( OpCodes, OP_a2 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a2.json", &b ) ); }
+TEST( OpCodes, OP_a6 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a6.json", &b ) ); }
+TEST( OpCodes, OP_b6 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/b6.json", &b ) ); }
+TEST( OpCodes, OP_ae ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/ae.json", &b ) ); }
+TEST( OpCodes, OP_be ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/be.json", &b ) ); }
+
+// LDY
+TEST( OpCodes, OP_a0 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a0.json", &b ) ); }
+TEST( OpCodes, OP_a4 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/a4.json", &b ) ); }
+TEST( OpCodes, OP_b4 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/b4.json", &b ) ); }
+TEST( OpCodes, OP_ac ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/ac.json", &b ) ); }
+TEST( OpCodes, OP_bc ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/bc.json", &b ) ); }
+
+// LSR
+TEST( OpCodes, OP_4a ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/4a.json", &b ) ); }
+TEST( OpCodes, OP_46 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/46.json", &b ) ); }
+TEST( OpCodes, OP_56 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/56.json", &b ) ); }
+TEST( OpCodes, OP_4e ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/4e.json", &b ) ); }
+TEST( OpCodes, OP_5e ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/5e.json", &b ) ); }
+
+// NOP
+TEST( OpCodes, OP_ea ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/ea.json", &b ) ); }
+
+// ORA
+TEST( OpCodes, OP_01 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/01.json", &b ) ); }
+TEST( OpCodes, OP_05 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/05.json", &b ) ); }
+TEST( OpCodes, OP_09 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/09.json", &b ) ); }
+TEST( OpCodes, OP_0d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/0d.json", &b ) ); }
+TEST( OpCodes, OP_11 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/11.json", &b ) ); }
+TEST( OpCodes, OP_15 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/15.json", &b ) ); }
+TEST( OpCodes, OP_19 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/19.json", &b ) ); }
+TEST( OpCodes, OP_1d ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/1d.json", &b ) ); }
+
+// PHA
+TEST( OpCodes, OP_48 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/48.json", &b ) ); }
+
+// PHP
+TEST( OpCodes, OP_08 ) { TestBus::Bus b; EXPECT_TRUE( json_test( "../json_tests/08.json", &b ) ); }
 
 
 /*

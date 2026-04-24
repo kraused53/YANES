@@ -626,48 +626,129 @@ uint8_t CPU::DEY() {
     return 0;
 }
 
+// ExOR
 uint8_t CPU::EOR() { 
-    return UNI();
+    A = A ^ collect();
+
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
+
+    return 1;
 }
 
+// Increment mem
 uint8_t CPU::INC() { 
-    return UNI();
+    tmp = collect() + 1;
+    write( abs_addr, tmp & 0xFF );
+    
+	set_flag(Z, ( tmp & 0x00FF ) == 0 );
+	set_flag(N, tmp & 0x0080 );
+
+    return 0;
 }
 
+// Increment X
 uint8_t CPU::INX() { 
-    return UNI();
+    X++;
+    
+	set_flag(Z, X == 0 );
+	set_flag(N, X & 0x80 );
+
+    return 0;
 }
 
+// Increment Y
 uint8_t CPU::INY() { 
-    return UNI();
+    Y++;
+    
+	set_flag(Z, Y == 0 );
+	set_flag(N, Y & 0x80 );
+
+    return 0;
 }
 
+// Jump
 uint8_t CPU::JMP() { 
-    return UNI();
+    PC = abs_addr;
+    return 0;
 }
 
+// Jump to sub routine
 uint8_t CPU::JSR() { 
-    return UNI();
+    PC--;
+
+    push_byte_to_stack( ( PC >> 8 ) & 0x00FF );
+    push_byte_to_stack( ( PC ) & 0x00FF );  
+
+    PC = abs_addr;
+
+    return 0;
 }
 
+// Load A
 uint8_t CPU::LDA() { 
-    return UNI();
+    A = collect();
+
+	set_flag(Z, A == 0 );
+	set_flag(N, A & 0x80 );
+
+    return 1;
 }
 
+// Load X
 uint8_t CPU::LDX() { 
-    return UNI();
+    X = collect();
+
+	set_flag(Z, X == 0 );
+	set_flag(N, X & 0x80 );
+
+    return 1;
 }
 
+// Load Y
 uint8_t CPU::LDY() { 
-    return UNI();
+    Y = collect();
+
+	set_flag(Z, Y == 0 );
+	set_flag(N, Y & 0x80 );
+
+    return 1;
 }
 
+// Logical shift right
 uint8_t CPU::LSR() { 
-    return UNI();
+    operand = collect();
+
+    set_flag( C, operand & 0x0001 );
+
+    tmp = operand >> 1;
+
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+    
+    return 0;
 }
 
 /* NOP - Do nothing for 2 cycles */
-uint8_t CPU::NOP() { return 0; }
+uint8_t CPU::NOP() { 
+    switch (opcode) {
+        case 0x1C:
+        case 0x3C:
+        case 0x5C:
+        case 0x7C:
+        case 0xDC:
+        case 0xFC:
+            return 1;
+            break;
+	}
+	return 0;
+}
 
 uint8_t CPU::ORA() {
     
@@ -680,11 +761,15 @@ uint8_t CPU::ORA() {
 }
 
 uint8_t CPU::PHA() { 
-    return UNI();
+    push_byte_to_stack( A );
+    return 0;
 }
 
 uint8_t CPU::PHP() { 
-    return UNI();
+
+    push_byte_to_stack( F | B | U );
+
+    return 0;
 }
 
 uint8_t CPU::PLA() { 
