@@ -1,4 +1,5 @@
 #include "core/bus/Bus.h"
+#include "util/map/address_map.h"
 
 #include <Logger.h>
 
@@ -14,11 +15,17 @@ Bus::~Bus() {
 }
 
 void Bus::write( uint16_t addr, uint8_t data ) {
-    ram[ addr ] = data;
+	if( between( addr, RAM_START, RAM_END ) ) {
+  	ram[ addr & 0x07FF ] = data;
+	}
 }
 
 uint8_t Bus::read( uint16_t addr ) {
-    return ram[ addr ];
+	if( between( addr, RAM_START, RAM_END ) ) {
+  	return ram[ addr ];
+	}
+
+	return 0xFF;
 }
 
 void Bus::reset() {

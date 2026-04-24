@@ -15,7 +15,6 @@ int main( int argc, char** argv ) {
     nes.cpu.PC = 0xC000;
 
     nes.clock();
-    nes.clock();
 
     return EXIT_SUCCESS;
 }

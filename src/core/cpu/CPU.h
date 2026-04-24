@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 class IBus;
 class CPU {
@@ -46,7 +47,8 @@ class CPU {
         uint16_t rel_addr;
         uint16_t tmp;
         uint16_t operand;
-        uint64_t cycles;
+        uint8_t cycles;
+        uint64_t total_cycles;
         bool halted;
         bool error;
 

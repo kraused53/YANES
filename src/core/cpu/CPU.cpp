@@ -86,34 +86,73 @@ void CPU::reset() {
     halted = false;
     error = false;
     cycles = 7;
+    total_cycles = 0;
     abs_addr = 0x0000;
     rel_addr = 0x0000;
 }
 
 void CPU::step()  { 
-    // Fetch the next opcode from memory
-    //opcode = fetch_byte();
+    
+    if( cycles == 0 ) {
+        // Split the fetch for logging
+        opcode = fetch_byte();
 
-    // Split the fetch for logging
-    opcode = fetch_byte();
-
-    // Fetch the number of cycles needed for given opcode
-    cycles += opcode_table[opcode].cycles;
+        // Fetch the number of cycles needed for given opcode
+        cycles = opcode_table[opcode].cycles;
 
 
-    // Apply the addressing mode for this opcode
-    uint8_t aditional_cycle_one = (this->*opcode_table[opcode].addr_mode)();
+        // Apply the addressing mode for this opcode
+        uint8_t aditional_cycle_one = (this->*opcode_table[opcode].addr_mode)();
 
-    // Execute the opcode
-    uint8_t aditional_cycle_two = (this->*opcode_table[opcode].operate)();
+        // Execute the opcode
+        uint8_t aditional_cycle_two = (this->*opcode_table[opcode].operate)();
 
-    cycles += ( aditional_cycle_one & aditional_cycle_two );
+        cycles = ( aditional_cycle_one & aditional_cycle_two );
+    }
+
+    cycles--;
+    total_cycles++;
 
 }
 
-void CPU::irq()   { Logger::Err( "ERROR - irq" );   }
+void CPU::irq() {
+    // If interrupts are disabled ( I == 1 ), skip 
+    if( get_flag( I ) ) {
+        return;
+    }
 
-void CPU::nmi()   { Logger::Err( "ERROR - nmi" );   }
+    // Push PC to stack
+    push_byte_to_stack( ( PC >> 8 ) & 0xFF );
+    push_byte_to_stack( PC& 0xFF );
+
+    // Push flags to stack
+    set_flag(B, false);
+    set_flag(U, true);
+    set_flag(I, true);
+    push_byte_to_stack( F );
+
+    // Jump to IQR vector
+    PC = get_irq_vector();
+
+    cycles += 7;
+}
+
+void CPU::nmi() {
+    // Push PC to stack
+    push_byte_to_stack( ( PC >> 8 ) & 0xFF );
+    push_byte_to_stack( PC& 0xFF );
+
+    // Push flags to stack
+    set_flag(B, false);
+    set_flag(U, true);
+    set_flag(I, true);
+    push_byte_to_stack( F );
+
+    // Jump to IQR vector
+    PC = get_nmi_vector();
+
+    cycles = 8;
+}
 
 // Flags
 bool CPU::get_flag( FLAGS f ) { return F & f; }

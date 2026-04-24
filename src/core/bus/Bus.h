@@ -6,10 +6,12 @@
 #include "core/cpu/CPU.h"
 #include "IBus.h"
 
+
+
 class Bus : public IBus {
     private:
         // Fake memory
-        std::array<uint8_t, 64 * 1024> ram;
+        std::array<uint8_t, 2 * 1024> ram;
     
     public:
         Bus();
