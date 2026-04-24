@@ -77,9 +77,24 @@ if(BUILD_TESTING)
             YANES_CORE
             GTest::gtest
             GTest::gtest_main
+    )
+
+    add_executable(
+        opcode_tests
+        tests/cpu/opcode_testing.cpp
+    )
+
+    target_link_libraries(
+        opcode_tests
+        PRIVATE
+            cpp_logger::cpp_logger
+            YANES_CORE
+            GTest::gtest
+            GTest::gtest_main
             nlohmann_json::nlohmann_json
     )
 
     include(GoogleTest)
     gtest_discover_tests(cpu_tests)
+    gtest_discover_tests(opcode_tests)
 endif()
