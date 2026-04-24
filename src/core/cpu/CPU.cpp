@@ -267,6 +267,7 @@ uint8_t CPU::UNI() {
     return 1;
 }
 
+// Add with carry
 uint8_t CPU::ADC() {
     uint8_t operand = collect();
 
@@ -286,6 +287,7 @@ uint8_t CPU::ADC() {
     return 1;
 }
 
+// Logical AND
 uint8_t CPU::AND() {
     A = A & collect();
 
@@ -295,21 +297,175 @@ uint8_t CPU::AND() {
     return 1;
 }
 
-uint8_t CPU::ASL() { return UNI(); }
+// Arithmetic shift left
+uint8_t CPU::ASL() { 
+    operand = collect();
 
-uint8_t CPU::BCC() { return UNI(); }
+    tmp = operand << 1;
 
-uint8_t CPU::BCS() { return UNI(); }
+    set_flag( C, tmp > 0x00FF );
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
 
-uint8_t CPU::BEQ() { return UNI(); }
+    if ( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, ( tmp & 0xFF ) );
+    }
 
-uint8_t CPU::BIT() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::BMI() { return UNI(); }
+// Branch when carry clear
+uint8_t CPU::BCC() {
+    // Skip if carry is set 
+    if( get_flag( C ) ) {
+        return 0;
+    }
 
-uint8_t CPU::BNE() { return UNI(); }
+    // Will take min. 1 extra cycle
+    cycles++;
 
-uint8_t CPU::BPL() { return UNI(); }
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Branch when carry set
+uint8_t CPU::BCS() {
+    // Skip if carry is not set 
+    if( !get_flag( C ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Branch on equal ( zero set )
+uint8_t CPU::BEQ() {
+    
+    if( !get_flag( Z ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Test bits
+uint8_t CPU::BIT() { 
+    operand = collect();
+
+    tmp = A & operand;
+
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, operand & ( 1 << 7 ) );
+    set_flag( V, operand & ( 1 << 6 ) );
+
+    return 0;
+}
+
+// Branch on neg
+uint8_t CPU::BMI() {
+    
+    if( !get_flag( N ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Branch on equal ( zero clear )
+uint8_t CPU::BNE() {
+    
+    if( get_flag( Z ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Branch on pos
+uint8_t CPU::BPL() {
+    
+    if( get_flag( N ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
 
 // Break - Software Interrupt
 uint8_t CPU::BRK() {
@@ -326,9 +482,51 @@ uint8_t CPU::BRK() {
     return 0;
 }
 
-uint8_t CPU::BVC() { return UNI(); }
+// Branch on no overflow
+uint8_t CPU::BVC() {
+    
+    if( get_flag( V ) ) {
+        return 0;
+    }
 
-uint8_t CPU::BVS() { return UNI(); }
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Branch on overflow
+uint8_t CPU::BVS() {
+    
+    if( !get_flag( V ) ) {
+        return 0;
+    }
+
+    // Will take min. 1 extra cycle
+    cycles++;
+
+    abs_addr = PC + rel_addr;
+
+    // Extra cycle on page crossing
+    if( ( abs_addr & 0xFF00 ) != ( PC & 0xFF00 ) ) {
+        cycles++;
+    }
+
+    // Jump
+    PC = abs_addr;
+
+    return 0;
+}
 
 /* Clear Carry Bit */
 uint8_t CPU::CLC() { 
@@ -336,47 +534,223 @@ uint8_t CPU::CLC() {
     return 0;
 }
 
-uint8_t CPU::CLD() { return UNI(); }
+// Clear decimal
+uint8_t CPU::CLD() { 
+    set_flag( D, false );
+    return 0;
+}
 
-uint8_t CPU::CLI() { return UNI(); }
+// Clear interrupt
+uint8_t CPU::CLI() { 
+    set_flag( I, false );
+    return 0;
+}
 
-uint8_t CPU::CLV() { return UNI(); }
+// Clear overflow
+uint8_t CPU::CLV() { 
+    set_flag( V, false );
+    return 0;
+}
 
-uint8_t CPU::CMP() { return UNI(); }
+// Compare A
+uint8_t CPU::CMP() { 
+    
+    operand = collect();
 
-uint8_t CPU::CPX() { return UNI(); }
+    tmp = ( uint16_t ) A - operand;
 
-uint8_t CPU::CPY() { return UNI(); }
+    set_flag(C, A >= operand );
+	set_flag(Z, ( tmp & 0x00FF ) == 0x0000 );
+	set_flag(N, tmp & 0x0080 );
 
-uint8_t CPU::DEC() { return UNI(); }
+    return 1;
+}
 
-uint8_t CPU::DEX() { return UNI(); }
+// Compare X
+uint8_t CPU::CPX() { 
+    
+    operand = collect();
 
-uint8_t CPU::DEY() { return UNI(); }
+    tmp = ( uint16_t ) X - operand;
 
-uint8_t CPU::EOR() { return UNI(); }
+    set_flag(C, X >= operand );
+	set_flag(Z, ( tmp & 0x00FF ) == 0x0000 );
+	set_flag(N, tmp & 0x0080 );
 
-uint8_t CPU::INC() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::INX() { return UNI(); }
+// Compare Y
+uint8_t CPU::CPY() { 
+    
+    operand = collect();
 
-uint8_t CPU::INY() { return UNI(); }
+    tmp = ( uint16_t ) Y - operand;
 
-uint8_t CPU::JMP() { return UNI(); }
+    set_flag(C, Y >= operand );
+	set_flag(Z, ( tmp & 0x00FF ) == 0x0000 );
+	set_flag(N, tmp & 0x0080 );
 
-uint8_t CPU::JSR() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::LDA() { return UNI(); }
+// DEC mem
+uint8_t CPU::DEC() { 
 
-uint8_t CPU::LDX() { return UNI(); }
+    tmp = collect() - 1;
+    write( abs_addr, tmp & 0xFF );
+    
+	set_flag(Z, ( tmp & 0x00FF ) == 0 );
+	set_flag(N, tmp & 0x0080 );
 
-uint8_t CPU::LDY() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::LSR() { return UNI(); }
+// DEC X
+uint8_t CPU::DEX() { 
+    X--;
+    
+	set_flag(Z, X == 0 );
+	set_flag(N, X & 0x80 );
+
+    return 0;
+}
+
+// DEC Y
+uint8_t CPU::DEY() { 
+    Y--;
+    
+	set_flag(Z, Y == 0 );
+	set_flag(N, Y & 0x80 );
+
+    return 0;
+}
+
+// ExOR
+uint8_t CPU::EOR() { 
+    A = A ^ collect();
+
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
+
+    return 1;
+}
+
+// Increment mem
+uint8_t CPU::INC() { 
+    tmp = collect() + 1;
+    write( abs_addr, tmp & 0xFF );
+    
+	set_flag(Z, ( tmp & 0x00FF ) == 0 );
+	set_flag(N, tmp & 0x0080 );
+
+    return 0;
+}
+
+// Increment X
+uint8_t CPU::INX() { 
+    X++;
+    
+	set_flag(Z, X == 0 );
+	set_flag(N, X & 0x80 );
+
+    return 0;
+}
+
+// Increment Y
+uint8_t CPU::INY() { 
+    Y++;
+    
+	set_flag(Z, Y == 0 );
+	set_flag(N, Y & 0x80 );
+
+    return 0;
+}
+
+// Jump
+uint8_t CPU::JMP() { 
+    PC = abs_addr;
+    return 0;
+}
+
+// Jump to sub routine
+uint8_t CPU::JSR() { 
+    PC--;
+
+    push_byte_to_stack( ( PC >> 8 ) & 0x00FF );
+    push_byte_to_stack( ( PC ) & 0x00FF );  
+
+    PC = abs_addr;
+
+    return 0;
+}
+
+// Load A
+uint8_t CPU::LDA() { 
+    A = collect();
+
+	set_flag(Z, A == 0 );
+	set_flag(N, A & 0x80 );
+
+    return 1;
+}
+
+// Load X
+uint8_t CPU::LDX() { 
+    X = collect();
+
+	set_flag(Z, X == 0 );
+	set_flag(N, X & 0x80 );
+
+    return 1;
+}
+
+// Load Y
+uint8_t CPU::LDY() { 
+    Y = collect();
+
+	set_flag(Z, Y == 0 );
+	set_flag(N, Y & 0x80 );
+
+    return 1;
+}
+
+// Logical shift right
+uint8_t CPU::LSR() { 
+    operand = collect();
+
+    set_flag( C, operand & 0x0001 );
+
+    tmp = operand >> 1;
+
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+    
+    return 0;
+}
 
 /* NOP - Do nothing for 2 cycles */
-uint8_t CPU::NOP() { return 0; }
+uint8_t CPU::NOP() { 
+    switch (opcode) {
+        case 0x1C:
+        case 0x3C:
+        case 0x5C:
+        case 0x7C:
+        case 0xDC:
+        case 0xFC:
+            return 1;
+            break;
+	}
+	return 0;
+}
 
+// Logical OR
 uint8_t CPU::ORA() {
     
     A |= collect();
@@ -387,22 +761,103 @@ uint8_t CPU::ORA() {
     return 1;
 }
 
-uint8_t CPU::PHA() { return UNI(); }
+// Push A to stack
+uint8_t CPU::PHA() { 
+    push_byte_to_stack( A );
+    return 0;
+}
 
-uint8_t CPU::PHP() { return UNI(); }
+// Push F to stack
+uint8_t CPU::PHP() { 
 
-uint8_t CPU::PLA() { return UNI(); }
+    push_byte_to_stack( F | B | U );
 
-uint8_t CPU::PLP() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::ROL() { return UNI(); }
+// Pop A from stack
+uint8_t CPU::PLA() { 
+    A = pop_byte_from_stack();
 
-uint8_t CPU::ROR() { return UNI(); }
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
 
-uint8_t CPU::RTI() { return UNI(); }
+    return 0;
+}
 
-uint8_t CPU::RTS() { return UNI(); }
+// Pop F from stack
+uint8_t CPU::PLP() { 
+    F = pop_byte_from_stack();
+    set_flag( U, true );
+    set_flag( B, false );
+    return 0;
+}
 
+// Rotate left
+uint8_t CPU::ROL() { 
+    tmp = ( collect() << 1 );
+    if( get_flag( C ) ) {
+        tmp |= 0x0001;
+    }
+
+    set_flag( C, tmp > 0x00FF );
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+
+    return 0;
+}
+
+// Rotate right
+uint8_t CPU::ROR() { 
+    operand = collect();
+
+    tmp = ( operand >> 1 );
+    if( get_flag( C ) ) {
+        tmp |= 0x0080;
+    }
+
+    set_flag( C, operand & 0x0001 );
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+
+    return 0;
+}
+
+// Return from interrupt
+uint8_t CPU::RTI() { 
+    F = pop_byte_from_stack();
+    set_flag( B, false );
+    set_flag( U, true );
+
+    PC = pop_byte_from_stack();
+    PC |= ( pop_byte_from_stack() ) << 8;
+
+    return 0;
+}
+
+// Return from subroutine
+uint8_t CPU::RTS() { 
+    PC = pop_byte_from_stack();
+    PC |= ( pop_byte_from_stack() ) << 8;
+
+    PC++;
+
+    return 0;
+}
+
+// Subtract with carry
 uint8_t CPU::SBC() {
     operand = ((uint16_t) collect() ) ^ 0x00FF;
 
@@ -421,27 +876,79 @@ uint8_t CPU::SBC() {
     return 1;
 }
 
-uint8_t CPU::SEC() { return UNI(); }
+// Set carry
+uint8_t CPU::SEC() { 
+    set_flag( C, true );
+    return 0;
+}
 
-uint8_t CPU::SED() { return UNI(); }
+// Set decimal
+uint8_t CPU::SED() { 
+    set_flag( D, true );
+    return 0;
+}
 
-uint8_t CPU::SEI() { return UNI(); }
+// Set interrupt
+uint8_t CPU::SEI() { 
+    set_flag( I, true );
+    return 0;
+}
 
-uint8_t CPU::STA() { return UNI(); }
+uint8_t CPU::STA() { 
+    write( abs_addr, A );
+    return 0;
+}
 
-uint8_t CPU::STX() { return UNI(); }
+uint8_t CPU::STX() { 
+    write( abs_addr, X );
+    return 0;
+}
 
-uint8_t CPU::STY() { return UNI(); }
+uint8_t CPU::STY() { 
+    write( abs_addr, Y );
+    return 0;
+}
 
-uint8_t CPU::TAX() { return UNI(); }
+uint8_t CPU::TAX() { 
+    X = A;
 
-uint8_t CPU::TAY() { return UNI(); }
+    set_flag( Z, X == 0 );
+    set_flag( N, X & 0x80 );
+    
+    return 0;
+}
 
-uint8_t CPU::TSX() { return UNI(); }
+uint8_t CPU::TAY() { 
+    Y = A;
 
-uint8_t CPU::TXA() { return UNI(); }
+    set_flag( Z, Y == 0 );
+    set_flag( N, Y & 0x80 );
+    
+    return 0;
+}
 
-uint8_t CPU::TXS() { return UNI(); }
+uint8_t CPU::TSX() { 
+    X = SP;
+    
+    set_flag( Z, X == 0 );
+    set_flag( N, X & 0x80 );
+
+    return 0;
+}
+
+uint8_t CPU::TXA() { 
+    A = X;
+    
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
+
+    return 0;
+}
+
+uint8_t CPU::TXS() { 
+    SP = X;
+    return 0;
+}
 
 /* Transfer Y -> A */
 uint8_t CPU::TYA() {
