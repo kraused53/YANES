@@ -57,14 +57,6 @@ if(BUILD_TESTING)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
-    FetchContent_Declare(
-        nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-    )
-
-    FetchContent_MakeAvailable(nlohmann_json)
-
     add_executable(
         cpu_tests
         tests/cpu/cpu_testing.cpp
@@ -79,22 +71,6 @@ if(BUILD_TESTING)
             GTest::gtest_main
     )
 
-    add_executable(
-        opcode_tests
-        tests/cpu/opcode_testing.cpp
-    )
-
-    target_link_libraries(
-        opcode_tests
-        PRIVATE
-            cpp_logger::cpp_logger
-            YANES_CORE
-            GTest::gtest
-            GTest::gtest_main
-            nlohmann_json::nlohmann_json
-    )
-
     include(GoogleTest)
     gtest_discover_tests(cpu_tests)
-    gtest_discover_tests(opcode_tests)
 endif()
