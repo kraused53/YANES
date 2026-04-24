@@ -750,6 +750,7 @@ uint8_t CPU::NOP() {
 	return 0;
 }
 
+// Logical OR
 uint8_t CPU::ORA() {
     
     A |= collect();
@@ -760,11 +761,13 @@ uint8_t CPU::ORA() {
     return 1;
 }
 
+// Push A to stack
 uint8_t CPU::PHA() { 
     push_byte_to_stack( A );
     return 0;
 }
 
+// Push F to stack
 uint8_t CPU::PHP() { 
 
     push_byte_to_stack( F | B | U );
@@ -772,30 +775,89 @@ uint8_t CPU::PHP() {
     return 0;
 }
 
+// Pop A from stack
 uint8_t CPU::PLA() { 
-    return UNI();
+    A = pop_byte_from_stack();
+
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
+
+    return 0;
 }
 
+// Pop F from stack
 uint8_t CPU::PLP() { 
-    return UNI();
+    F = pop_byte_from_stack();
+    set_flag( U, true );
+    set_flag( B, false );
+    return 0;
 }
 
+// Rotate left
 uint8_t CPU::ROL() { 
-    return UNI();
+    tmp = ( collect() << 1 );
+    if( get_flag( C ) ) {
+        tmp |= 0x0001;
+    }
+
+    set_flag( C, tmp > 0x00FF );
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+
+    return 0;
 }
 
+// Rotate right
 uint8_t CPU::ROR() { 
-    return UNI();
+    operand = collect();
+
+    tmp = ( operand >> 1 );
+    if( get_flag( C ) ) {
+        tmp |= 0x0080;
+    }
+
+    set_flag( C, operand & 0x0001 );
+    set_flag( Z, ( tmp & 0x00FF ) == 0 );
+    set_flag( N, tmp & 0x0080 );
+
+    if( opcode_table[opcode].addr_mode == &CPU::IMP ) {
+        A = tmp & 0xFF;
+    }else {
+        write( abs_addr, tmp & 0xFF );
+    }
+
+    return 0;
 }
 
+// Return from interrupt
 uint8_t CPU::RTI() { 
-    return UNI();
+    F = pop_byte_from_stack();
+    set_flag( B, false );
+    set_flag( U, true );
+
+    PC = pop_byte_from_stack();
+    PC |= ( pop_byte_from_stack() ) << 8;
+
+    return 0;
 }
 
+// Return from subroutine
 uint8_t CPU::RTS() { 
-    return UNI();
+    PC = pop_byte_from_stack();
+    PC |= ( pop_byte_from_stack() ) << 8;
+
+    PC++;
+
+    return 0;
 }
 
+// Subtract with carry
 uint8_t CPU::SBC() {
     operand = ((uint16_t) collect() ) ^ 0x00FF;
 
@@ -814,48 +876,78 @@ uint8_t CPU::SBC() {
     return 1;
 }
 
+// Set carry
 uint8_t CPU::SEC() { 
-    return UNI();
+    set_flag( C, true );
+    return 0;
 }
 
+// Set decimal
 uint8_t CPU::SED() { 
-    return UNI();
+    set_flag( D, true );
+    return 0;
 }
 
+// Set interrupt
 uint8_t CPU::SEI() { 
-    return UNI();
+    set_flag( I, true );
+    return 0;
 }
 
 uint8_t CPU::STA() { 
-    return UNI();
+    write( abs_addr, A );
+    return 0;
 }
 
 uint8_t CPU::STX() { 
-    return UNI();
+    write( abs_addr, X );
+    return 0;
 }
 
 uint8_t CPU::STY() { 
-    return UNI();
+    write( abs_addr, Y );
+    return 0;
 }
 
 uint8_t CPU::TAX() { 
-    return UNI();
+    X = A;
+
+    set_flag( Z, X == 0 );
+    set_flag( N, X & 0x80 );
+    
+    return 0;
 }
 
 uint8_t CPU::TAY() { 
-    return UNI();
+    Y = A;
+
+    set_flag( Z, Y == 0 );
+    set_flag( N, Y & 0x80 );
+    
+    return 0;
 }
 
 uint8_t CPU::TSX() { 
-    return UNI();
+    X = SP;
+    
+    set_flag( Z, X == 0 );
+    set_flag( N, X & 0x80 );
+
+    return 0;
 }
 
 uint8_t CPU::TXA() { 
-    return UNI();
+    A = X;
+    
+    set_flag( Z, A == 0 );
+    set_flag( N, A & 0x80 );
+
+    return 0;
 }
 
 uint8_t CPU::TXS() { 
-    return UNI();
+    SP = X;
+    return 0;
 }
 
 /* Transfer Y -> A */
