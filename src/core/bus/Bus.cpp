@@ -1,10 +1,10 @@
 #include "core/bus/Bus.h"
 
+#include <Logger.h>
+
 Bus::Bus() {
 	// Connect CPU to communication bus
 	cpu.ConnectBus(this);
-
-	
 
 	reset();
 }

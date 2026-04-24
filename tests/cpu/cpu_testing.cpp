@@ -2,8 +2,6 @@
 #include "core/cpu/CPU.h"
 #include "core/bus/Bus.h"
 
-
-
 TEST( CPU, Initialization ) {
     Bus bus;
 

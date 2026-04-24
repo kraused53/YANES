@@ -85,18 +85,21 @@ void CPU::reset() {
     opcode = 0x00;
     halted = false;
     error = false;
-    cycles = 0;
+    cycles = 7;
     abs_addr = 0x0000;
     rel_addr = 0x0000;
 }
 
 void CPU::step()  { 
     // Fetch the next opcode from memory
+    //opcode = fetch_byte();
+
+    // Split the fetch for logging
     opcode = fetch_byte();
 
-
     // Fetch the number of cycles needed for given opcode
-    cycles = opcode_table[opcode].cycles;
+    cycles += opcode_table[opcode].cycles;
+
 
     // Apply the addressing mode for this opcode
     uint8_t aditional_cycle_one = (this->*opcode_table[opcode].addr_mode)();
