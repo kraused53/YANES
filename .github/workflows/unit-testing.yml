@@ -21,3 +21,6 @@ jobs:
 
       - name: Build
         run: mvn -B verify
+
+      - name: Test
+        run: mvn -B test
